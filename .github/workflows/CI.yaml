@@ -1,20 +1,17 @@
-name: Build and Push Docker Image
+name: Docker Build and Push
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Docker Buildx
@@ -23,13 +20,16 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}  # Your Docker Hub username
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Your Docker Hub password or token
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build the Docker image
-        run: |
-          docker build -t smtmdeepak/myapp .
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: smtmdeepak/myapp:${{ github.sha }}
 
-      - name: Push the Docker image
-        run: |
-          docker push smtmdeepak/myapp
+      - name: Notify success
+        if: success()
+        run: echo "Docker image built and pushed successfully!"
