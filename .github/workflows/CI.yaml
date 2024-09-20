@@ -30,7 +30,18 @@ jobs:
           context: .
           push: true
           tags: smtmdeepak/myapp:${{ github.sha }}
+          
+      - name: Install Trivy
+        run: |
+         sudo apt-get update
+         sudo apt-get install -y trivy
 
+      - name: Scan Docker image with Trivy
+        id: trivy-scan
+        run: |
+          trivy image --severity HIGH,CRITICAL --format json smtmdeepak/myapp:${{ github.sha }} -o trivy-results.json || true
+
+      
       - name: Notify success
         if: success()
         run: echo "Docker image built and pushed successfully!"
