@@ -15,6 +15,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -31,16 +45,6 @@ jobs:
           push: true
           tags: smtmdeepak/myapp:${{ github.sha }}
           
-      - name: Install Trivy
-        run: |
-         sudo apt-get update
-         sudo apt-get install -y trivy
-
-      - name: Scan Docker image with Trivy
-        id: trivy-scan
-        run: |
-          trivy image --severity HIGH,CRITICAL --format json smtmdeepak/myapp:${{ github.sha }} -o trivy-results.json || true
-
       
       - name: Notify success
         if: success()
