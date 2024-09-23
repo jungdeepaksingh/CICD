@@ -55,6 +55,6 @@ jobs:
           docker push smtmdeepak/myapp:latest
           
       
-      - name: Notify success
-        if: success()
-        run: echo "Docker image built and pushed successfully!"
+  #    - name: Notify success
+   #     if: success()
+    #    run: echo "Docker image built and pushed successfully!"
