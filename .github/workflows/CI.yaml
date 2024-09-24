@@ -3,6 +3,7 @@ name: Docker Build and Push
 on:
  # push:
  pull_request:
+    types: [closed]
     branches:
       - main
      
